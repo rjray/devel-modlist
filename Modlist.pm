@@ -53,6 +53,8 @@ sub report
     my $fh = $options{stdout} ? 'STDOUT' : 'STDERR';
     $DB::trace = 0 if ($DB::trace);
     my %files = %INC;
+    # Anything required from here on won't show up unless already there
+    require File::Spec;
     my @order = (0 .. 2);
     if ($options{nocore})
     {
@@ -70,8 +72,8 @@ sub report
     {
         require CPAN;
         CPAN::Config->load;
-	# Defeat "used only once" warnings without using local() which breaks
-	$CPAN::Frontend = $CPAN::Config->{index_expire} = '';
+        # Defeat "used only once" warnings without using local() which breaks
+        $CPAN::Frontend = $CPAN::Config->{index_expire} = '';
         $CPAN::Frontend = 'Devel::Modlist::QuietCPAN';
         # This is an arbitrary value to inhibit re-loading index files
         $CPAN::Config->{index_expire} = 300;
@@ -80,7 +82,7 @@ sub report
 
         for $inc (sort keys %files)
         {
-            ($pkg = $inc) =~ s|/|::|g;
+            $pkg = join('::', File::Spec->splitdir($inc);
             $pkg =~ s/\.pm$//;
             $modobj = CPAN::Shell->expand('Module', $pkg) or next;
             $cpan_file = $modobj->cpan_file;
@@ -110,8 +112,8 @@ sub report
     for $inc (sort keys %files)
     {
         next if ($inc =~ /\.(al|ix)$/);
-        ($pkg = $inc) =~ s/\.pm$//;
-        $pkg =~ s/\//::/g;
+        $pkg = join('::', File::Spec->splitdir($inc);
+        $pkg =~ s/\.pm$//;
         next if ($pkg eq __PACKAGE__); # After all...
         my $version = ${"$pkg\::VERSION"} || '';
         printf $fh $format, ($pkg, $version, $files{$inc})[@order];
