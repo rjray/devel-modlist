@@ -13,3 +13,10 @@ Revision history for Perl extension Devel::Modlist.
 	functionality as well as the 'nocore' option. There is a test
 	in Makefile.PL to warn about problems with nocore if your
 	installprivlib is a direct ancestor of your installsitelib.
+
+0.2   Sat Feb 13 03:12:57 PST 1999
+	- second alpha
+
+	Changed the algorithm that removes core modules. Now decendant
+	directories are no longer an issue. Added a new option, 'noversion',
+	to suppress display of the version number.

@@ -1,6 +1,6 @@
 Devel::Modlist - Show the modules, with version number, used by a script
 
-Version: 0.1
+Version: 0.2 (see CHANGE HISTORY below)
 
 WHAT IS IT
 
@@ -17,11 +17,11 @@ USING Devel::Modlist
 
 The module is designed to be used like most Devel::* packages:
 
-	perl -d:Modlist script
+        perl -d:Modlist script
 
 It can also be used via -M:
 
-	perl -MDevel::Modlist script
+        perl -MDevel::Modlist script
 
 
 BUILDING/INSTALLING
@@ -29,14 +29,14 @@ BUILDING/INSTALLING
 The package is designed to configure and build like a typical Perl module.
 To build:
 
-	perl Makefile.PL
-	make && make test
+        perl Makefile.PL
+        make && make test
 
 (at present, there are no tests defined for Devel::Modlist)
 
 To install:
 
-	make install
+        make install
 
 You may need super-user priviledges to install.
 
@@ -55,3 +55,20 @@ of copy and distribution terms.
 
 Perl module interface by Randy J. Ray (rjray@tsoft.com), original concept and
 prototype code from Tim Bunce (Tim.Bunce@ig.co.uk).
+
+
+CHANGE HISTORY
+
+This is version 0.2 (alpha-2):
+
+* Changed the algorithm that tests for and removes core modules from the list.
+  Having site_lib be a decendant of perl_lib is no longer an issue.
+
+* Added and documented a second option, 'noversion', that suppresses the
+  display of the version number for those modules that define one.
+
+Initial version 0.1 (alpha-1):
+
+* Taken from an idea and prototype code by Tim Bunce, a module in the Devel::*
+  space that tallies up the modules that were pulled in via require or use,
+  and lists them, akin to the GNU CC -M option.
