@@ -5,12 +5,13 @@
 #
 package Devel::Modlist;
 
-# Uncomment only for syntax checking-- no pragmas in production use
+# Uncomment only for syntax checking-- no pragmas in production use (it can
+# affect the output)
 #use strict;
 
 # Suppress warnings without using the vars pragma
 local ($Devel::Modlist::VERSION, $Devel::Modlist::revision);
-$Devel::Modlist::VERSION = '0.4';
+$Devel::Modlist::VERSION = '0.5';
 $Devel::Modlist::revision = do { my @r=(q$Revision$=~/\d+/g); sprintf "%d."."%02d"x$#r,@r };
 
 BEGIN
@@ -29,7 +30,9 @@ sub import
 {
     shift(@_); # Lose the leading "classname" value
 
-    grep($options{$_} = 1, @_);
+    grep($options{$_} = 1,
+         @_ ? @_ : split(/[, ]/,
+                         ($ENV{'Devel::Modlist'} || $ENV{Devel__Modlist})));
 }
 
 sub DB::DB
@@ -53,7 +56,7 @@ sub report
     my $fh = $options{stdout} ? 'STDOUT' : 'STDERR';
     $DB::trace = 0 if ($DB::trace);
     my %files = %INC;
-    # Anything required from here on won't show up unless already there
+    # Anything required from here on won't show up unless it was already there
     require File::Spec;
     my @order = (0 .. 2);
     if ($options{nocore})
@@ -96,7 +99,7 @@ sub report
             $files{$inc} = $cpan_file if $options{cpandist};
         }
     }
-    # To prevent options being evaluated EVERY loop iteratio, we set a format
+    # To prevent options being evaluated EVERY loop iteration, we set a format
     # and data ordering:
     if ($options{noversion} || $options{path} || $options{cpandist})
     {
@@ -164,21 +167,25 @@ from the code.
 
 =head1 OPTIONS
 
-The following options may be specified to the package on the command
-line. Current (as of July 2000) Perl versions (release version up to 5.6.0)
-cannot accept options to the C<-d:> flag as with the C<-M> flag. Thus,
-to pass an option one must use:
+The following options may be specified to the package. These are specified either by:
 
     perl -MDevel::Modlist=option1[,option2,...]
 
-Unfortunately, this inhibits the B<stop> option detailed below. To use this
-option, an invocation of:
+or
 
-    perl -d:Modlist -MDevel::Modlist=option1[,option2,...]
+    perl -d:Modlist=option1[,option2,...]
 
-does the trick, as the first invocation puts the interpreter in debugging mode
-(necessary for B<stop> to work) while the second causes the options to be
-parsed and recorded by B<Devel::Modlist>.
+Options may also be given in an environment variable, which gets read at any
+invocation in which there are B<no> options explicitly provided. If any
+options are given in the invocation, then the environment variable is ignored. Two different names are recognized:
+
+    Devel::Modlist
+    Devel__Modlist
+
+The latter is to accomodate shells that do not like the presence of C<::> in
+an environment variable name.
+
+The options:
 
 =over
 
@@ -233,6 +240,25 @@ such mechanisms to load libraries after the compilation phase, these will
 not be reported.
 
 =back
+
+=head1 CAVEATS
+
+Perl versions up to 5.6.0 cannot accept options to the C<-d:> flag as
+with the C<-M> flag. Thus, to pass options one must use:
+
+    perl -MDevel::Modlist=option1[,option2,...]
+
+Unfortunately, this inhibits the B<stop> option detailed earlier. To use this
+option, an invocation of:
+
+    perl -d:Modlist -MDevel::Modlist=option1[,option2,...]
+
+does the trick, as the first invocation puts the interpreter in debugging mode
+(necessary for B<stop> to work) while the second causes the options to be
+parsed and recorded by B<Devel::Modlist>.
+
+Versions of Perl from 5.6.1 onwards allow options to be included with the
+C<-d:Modlist> flag.
 
 =head1 AUTHOR
 
