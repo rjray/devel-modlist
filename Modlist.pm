@@ -10,7 +10,7 @@ package Devel::Modlist;
 
 # Suppress warnings without using the vars pragma
 local ($Devel::Modlist::VERSION, $Devel::Modlist::revision);
-$Devel::Modlist::VERSION = '0.3';
+$Devel::Modlist::VERSION = '0.4';
 $Devel::Modlist::revision = do { my @r=(q$Revision$=~/\d+/g); sprintf "%d."."%02d"x$#r,@r };
 
 sub report;
