@@ -82,7 +82,7 @@ sub report
 
         for $inc (sort keys %files)
         {
-            $pkg = join('::', File::Spec->splitdir($inc);
+            $pkg = join('::', File::Spec->splitdir($inc));
             $pkg =~ s/\.pm$//;
             $modobj = CPAN::Shell->expand('Module', $pkg) or next;
             $cpan_file = $modobj->cpan_file;
@@ -112,7 +112,7 @@ sub report
     for $inc (sort keys %files)
     {
         next if ($inc =~ /\.(al|ix)$/);
-        $pkg = join('::', File::Spec->splitdir($inc);
+        $pkg = join('::', File::Spec->splitdir($inc));
         $pkg =~ s/\.pm$//;
         next if ($pkg eq __PACKAGE__); # After all...
         my $version = ${"$pkg\::VERSION"} || '';
