@@ -43,3 +43,6 @@ Revision history for Perl extension Devel::Modlist.
 	only one representative of a given CPAN distribution file is shown.
 	The "cpandist" option causes the displayed value to be the actual
 	CPAN file, rather than just the shorted package name.
+
+	Make use of File::Spec->splitdir when translating filenames into
+	package names. This should avoid any problems on Macs, etc.
