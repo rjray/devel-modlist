@@ -13,6 +13,16 @@ local ($Devel::Modlist::VERSION, $Devel::Modlist::revision);
 $Devel::Modlist::VERSION = '0.4';
 $Devel::Modlist::revision = do { my @r=(q$Revision$=~/\d+/g); sprintf "%d."."%02d"x$#r,@r };
 
+BEGIN
+{
+    # This defines a simple class that CPAN will use if it is requested
+    package Devel::Modlist::QuietCPAN;
+
+    sub myprint { }
+    sub mywarn  { shift; CPAN::Shell->mywarn(@_); }
+    sub mydie   { shift; CPAN::Shell->mydie(@_); }
+}
+
 sub report;
 
 sub import
@@ -43,6 +53,7 @@ sub report
     my $fh = $options{stdout} ? 'STDOUT' : 'STDERR';
     $DB::trace = 0 if ($DB::trace);
     my %files = %INC;
+    my @order = (0 .. 2);
     if ($options{nocore})
     {
         require Config; # Won't have to worry about grep'ing out this one :-)
@@ -55,13 +66,46 @@ sub report
             }
         }
     }
-    if ($options{noversion} || $options{path})
+    if ($options{cpan} or $options{cpandist})
+    {
+        require CPAN;
+        CPAN::Config->load;
+	# Defeat "used only once" warnings without using local() which breaks
+	$CPAN::Frontend = $CPAN::Config->{index_expire} = '';
+        $CPAN::Frontend = 'Devel::Modlist::QuietCPAN';
+        # This is an arbitrary value to inhibit re-loading index files
+        $CPAN::Config->{index_expire} = 300;
+        my %seen_dist = ();
+        my ($modobj, $cpan_file);
+
+        for $inc (sort keys %files)
+        {
+            ($pkg = $inc) =~ s|/|::|g;
+            $pkg =~ s/\.pm$//;
+            $modobj = CPAN::Shell->expand('Module', $pkg) or next;
+            $cpan_file = $modobj->cpan_file;
+            if ($seen_dist{$cpan_file})
+            {
+                delete $files{$inc};
+                next;
+            }
+            # Haven't seen it until now
+            $seen_dist{$cpan_file}++;
+            $files{$inc} = $cpan_file if $options{cpandist};
+        }
+    }
+    # To prevent options being evaluated EVERY loop iteratio, we set a format
+    # and data ordering:
+    if ($options{noversion} || $options{path} || $options{cpandist})
     {
         $format = "%s\n";
+        @order = (2) if ($options{path} || $options{cpandist});
+        # Only include the value (3rd) element
     }
     else
     {
         $format = "%-20s %6s\n";
+        @order = (2, 1) if $options{path};
     }
     for $inc (sort keys %files)
     {
@@ -70,14 +114,7 @@ sub report
         $pkg =~ s/\//::/g;
         next if ($pkg eq __PACKAGE__); # After all...
         my $version = ${"$pkg\::VERSION"} || '';
-        if ($options{path})
-        {
-            printf $fh $format, $files{$inc};
-        }
-        else
-        {
-            printf $fh $format, $pkg, $version;
-        }
+        printf $fh $format, ($pkg, $version, $files{$inc})[@order];
     }
 
     $reported++;
@@ -126,9 +163,9 @@ from the code.
 =head1 OPTIONS
 
 The following options may be specified to the package on the command
-line. Current (as of February 2000) Perl versions (release version up to
-5.00503 and development version up to 5.5.660) cannot accept options to
-the C<-d:> flag as with the C<-M> flag. Thus, to pass an option one must use:
+line. Current (as of July 2000) Perl versions (release version up to 5.6.0)
+cannot accept options to the C<-d:> flag as with the C<-M> flag. Thus,
+to pass an option one must use:
 
     perl -MDevel::Modlist=option1[,option2,...]
 
@@ -142,6 +179,28 @@ does the trick, as the first invocation puts the interpreter in debugging mode
 parsed and recorded by B<Devel::Modlist>.
 
 =over
+
+=item cpan
+
+Reduce the resulting list of modules by using the data maintained in the local
+I<CPAN> configuration area. The B<CPAN> module (see L<CPAN>) maintains a very
+thorough representation of the contents of the archive, on a per-module basis.
+Using this option means that if there are two or more modules that are parts
+of the same distribution, only one will be reported (the one with the shortest
+name). This is useful for generating a minimalist dependancy set that can in
+turn be fed to the B<CPAN> C<install> command to ensure that all needed
+modules are in fact present.
+
+=item cpandist
+
+This is identical to the option above, with the exception that it causes the
+reported output to be the B<CPAN> filename rather than the module name in
+the standard Perl syntax. This can also be fed to the B<CPAN> shell, but it
+can also be used by other front-ends as a path component in fetching the
+requisite file from an archive site. Since the name contains the version
+number, this behaves as though I<noversion> (see below) was also set. If
+both I<cpan> and I<cpandist> are set, this option (I<cpandist>) takes
+precedence. If I<path> is also specified, this option again takes precedence.
 
 =item nocore
 
@@ -165,16 +224,17 @@ for producing lists for later input to tools such as B<rpm>.
 
 =item stop
 
-Exit before the first actual program line is executed. This provides for fetching
-the dependancy list without actually running the full program. This has a drawback:
-if the program uses any of B<require>, B<eval> or other such mechanisms to load
-libraries after the compilation phase, these will not be reported.
+Exit before the first actual program line is executed. This provides for
+fetching the dependancy list without actually running the full program. This
+has a drawback: if the program uses any of B<require>, B<eval> or other
+such mechanisms to load libraries after the compilation phase, these will
+not be reported.
 
 =back
 
 =head1 AUTHOR
 
-Randy J. Ray <rjray@tsoft.com>, using idea and prototype code provided by
+Randy J. Ray <rjray@blackperl.com>, using idea and prototype code provided by
 Tim Bunce <Tim.Bunce@ig.co.uk>
 
 =head1 SEE ALSO
