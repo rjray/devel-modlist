@@ -33,3 +33,13 @@ Revision history for Perl extension Devel::Modlist.
 	affecting a large part of the structure) and cleaned up the docs.
 	Also decided to not use any pragmas so as to not add to the output
 	should the user not have included them. Released to CPAN as 0.3.
+
+0.4   Sat Jul 22 02:54:46 PDT 2000
+	- first beta
+
+	Added the options "cpan" and "cpandist" to do CPAN-based reduction.
+	Assuming your Perl installation uses the CPAN module for management
+	of modules, these options will reduce the list of modules such that
+	only one representative of a given CPAN distribution file is shown.
+	The "cpandist" option causes the displayed value to be the actual
+	CPAN file, rather than just the shorted package name.
