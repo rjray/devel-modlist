@@ -1,0 +1,15 @@
+Revision history for Perl extension Devel::Modlist.
+
+0.01  Fri Jan  8 01:06:17 1999
+	- original version; created by h2xs 1.18
+
+	Part proof-of-concept, part oops-I-volunteered. A Devel::* package
+	to list loaded/used modules at script exit, for dep lists and such.
+
+0.1   Thu Feb 11 00:48:51 1999
+	- first CPAN-ready version
+
+	Basic package ready for public scrutiny; implements the basic
+	functionality as well as the 'nocore' option. There is a test
+	in Makefile.PL to warn about problems with nocore if your
+	installprivlib is a direct ancestor of your installsitelib.
