@@ -1,6 +1,6 @@
 Devel::Modlist - Show the modules, with version number, used by a script
 
-Version: 0.2 (see CHANGE HISTORY below)
+Version: 0.3 (see CHANGE HISTORY below)
 
 WHAT IS IT
 
@@ -48,7 +48,7 @@ Please send any reports of problems or bugs to <rjray@tsoft.com>.
 
 CREDITS AND LICENSES
 
-This package is copyright (c) 1996,1998 by Randy Ray (rjray@tsoft.com) and may 
+This package is copyright (c) 2000 by Randy Ray (rjray@tsoft.com) and may 
 be distributed under terms of the Artistic License used to cover Perl itself.
 See the file Artistic in the distribution of Perl 5.002 or later for details
 of copy and distribution terms.
@@ -59,16 +59,24 @@ prototype code from Tim Bunce (Tim.Bunce@ig.co.uk).
 
 CHANGE HISTORY
 
-This is version 0.2 (alpha-2):
+This is version 0.3 (alpha-3):
 
-* Changed the algorithm that tests for and removes core modules from the list.
-  Having site_lib be a decendant of perl_lib is no longer an issue.
+* Added "path" and "stop" options. Added documentation on how to set the
+  options while also running via -d: (see the manual page for details).
 
-* Added and documented a second option, 'noversion', that suppresses the
-  display of the version number for those modules that define one.
+* Some code clean-up, including dropping all pragmas. Unless the user's code
+  pulls in the pragma, it shouldn't show up.
 
 Initial version 0.1 (alpha-1):
 
 * Taken from an idea and prototype code by Tim Bunce, a module in the Devel::*
   space that tallies up the modules that were pulled in via require or use,
   and lists them, akin to the GNU CC -M option.
+
+Version 0.2 (alpha-2):
+
+* Changed the algorithm that tests for and removes core modules from the list.
+  Having site_lib be a decendant of perl_lib is no longer an issue.
+
+* Added and documented a second option, 'noversion', that suppresses the
+  display of the version number for those modules that define one.
