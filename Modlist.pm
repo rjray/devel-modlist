@@ -5,11 +5,15 @@
 #
 package Devel::Modlist;
 
-use strict;
-use vars qw($VERSION $revision %options);
+# Uncomment only for syntax checking-- no pragmas in production use
+#use strict;
 
-$VERSION = '0.2';
-$revision = do { my @r=(q$Revision$=~/\d+/g); sprintf "%d."."%02d"x$#r,@r };
+# Suppress warnings without using the vars pragma
+local ($Devel::Modlist::VERSION, $Devel::Modlist::revision);
+$Devel::Modlist::VERSION = '0.3';
+$Devel::Modlist::revision = do { my @r=(q$Revision$=~/\d+/g); sprintf "%d."."%02d"x$#r,@r };
+
+sub report;
 
 sub import
 {
@@ -18,17 +22,26 @@ sub import
     grep($options{$_} = 1, @_);
 }
 
-sub DB::DB {}
-
-END
+sub DB::DB
 {
-    no strict 'refs';
+    if ($options{stop})
+    {
+        report;
+        exit;
+    }
+}
+
+sub report
+{
+    return if $reported;
+
     local $!;
     $^W = 0;
     my $pkg;
     my $inc;
     my $format;
-    $DB::trace = 0;
+    my $fh = $options{stdout} ? 'STDOUT' : 'STDERR';
+    $DB::trace = 0 if ($DB::trace);
     my %files = %INC;
     if ($options{nocore})
     {
@@ -42,7 +55,7 @@ END
             }
         }
     }
-    if ($options{noversion})
+    if ($options{noversion} || $options{path})
     {
         $format = "%s\n";
     }
@@ -50,16 +63,27 @@ END
     {
         $format = "%-20s %6s\n";
     }
-    foreach $inc (sort keys %files)
+    for $inc (sort keys %files)
     {
         next if ($inc =~ /\.(al|ix)$/);
         ($pkg = $inc) =~ s/\.pm$//;
         $pkg =~ s/\//::/g;
         next if ($pkg eq __PACKAGE__); # After all...
         my $version = ${"$pkg\::VERSION"} || '';
-        printf $format, $pkg, $version;
+        if ($options{path})
+        {
+            printf $fh $format, $files{$inc};
+        }
+        else
+        {
+            printf $fh $format, $pkg, $version;
+        }
     }
+
+    $reported++;
 }
+
+END { report }
 
 1;
 
@@ -95,18 +119,27 @@ Alternately, one could use the C<-M> option:
 
 In the case of this module, the two are identical save for the amount of
 typing (and option passing, see below). It is I<not> recommended that this
-module be loaded directly by a script via the C<use> keyword, as that would
+module be loaded directly by a script via the B<use> keyword, as that would
 cause the dependancy reporting after I<every> invocation until it was removed
 from the code.
 
 =head1 OPTIONS
 
 The following options may be specified to the package on the command
-line. Current (as of February 1999) Perl versions (release version up to
-5.00502 and development version up to 5.00554) cannot accept options to
+line. Current (as of February 2000) Perl versions (release version up to
+5.00503 and development version up to 5.5.660) cannot accept options to
 the C<-d:> flag as with the C<-M> flag. Thus, to pass an option one must use:
 
     perl -MDevel::Modlist=option1[,option2,...]
+
+Unfortunately, this inhibits the B<stop> option detailed below. To use this
+option, an invocation of:
+
+    perl -d:Modlist -MDevel::Modlist=option1[,option2,...]
+
+does the trick, as the first invocation puts the interpreter in debugging mode
+(necessary for B<stop> to work) while the second causes the options to be
+parsed and recorded by B<Devel::Modlist>.
 
 =over
 
@@ -124,6 +157,18 @@ module has defined its version by means of the accepted standard of
 declaring a variable C<$VERSION> in the package namespace, B<Devel::Modlist>
 finds this and includes it in the report by default. Use this option to
 override that default.
+
+=item path
+
+Display the path and filename of each module instead of the module name. Useful
+for producing lists for later input to tools such as B<rpm>.
+
+=item stop
+
+Exit before the first actual program line is executed. This provides for fetching
+the dependancy list without actually running the full program. This has a drawback:
+if the program uses any of B<require>, B<eval> or other such mechanisms to load
+libraries after the compilation phase, these will not be reported.
 
 =back
 
