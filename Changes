@@ -20,3 +20,16 @@ Revision history for Perl extension Devel::Modlist.
 	Changed the algorithm that removes core modules. Now decendant
 	directories are no longer an issue. Added a new option, 'noversion',
 	to suppress display of the version number.
+
+0.3   Wed Feb  2 00:41:59 PST 2000
+	- third alpha
+
+	Added patch from Alex Stewart (alex@redhat.com) to have the output
+	refer to file paths rather than packages. This is useful for feeding
+	to package management commands such as RPM, for dependancy checks.
+
+      Sat Feb 26 13:05:16 PST 2000
+	Tuned the "path" option, added the "stop" option (which ended up
+	affecting a large part of the structure) and cleaned up the docs.
+	Also decided to not use any pragmas so as to not add to the output
+	should the user not have included them. Released to CPAN as 0.3.
