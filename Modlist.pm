@@ -1,9 +1,14 @@
+#
+# Read the manual page from the pod at end for details.
+#
+# Generate a list of modules used by a perl script that has just run.
+#
 package Devel::Modlist;
 
 use strict;
 use vars qw($VERSION $revision %options);
 
-$VERSION = '0.1';
+$VERSION = '0.2';
 $revision = do { my @r=(q$Revision$=~/\d+/g); sprintf "%d."."%02d"x$#r,@r };
 
 sub import
@@ -22,22 +27,28 @@ END
     $^W = 0;
     my $pkg;
     my $inc;
+    my $format;
     $DB::trace = 0;
     my %files = %INC;
     if ($options{nocore})
     {
         require Config; # Won't have to worry about grep'ing out this one :-)
-        # 99.9% of the time, installprivlib will be a substr of installarchlib,
-        # but it isn't *guaranteed* to be...
         for my $lib ($Config::Config{installprivlib},
                      $Config::Config{installarchlib})
         {
             for (keys %files)
             {
-                delete $files{$_}
-                    if (substr($files{$_}, 0, length $lib) eq $lib);
+                delete $files{$_} if ("$lib/$_" eq $files{$_});
             }
         }
+    }
+    if ($options{noversion})
+    {
+        $format = "%s\n";
+    }
+    else
+    {
+        $format = "%-20s %6s\n";
     }
     foreach $inc (sort keys %files)
     {
@@ -46,7 +57,7 @@ END
         $pkg =~ s/\//::/g;
         next if ($pkg eq __PACKAGE__); # After all...
         my $version = ${"$pkg\::VERSION"} || '';
-        printf "%-20s %6s\n", $pkg, $version;
+        printf $format, $pkg, $version;
     }
 }
 
@@ -95,7 +106,7 @@ line. Current (as of February 1999) Perl versions (release version up to
 5.00502 and development version up to 5.00554) cannot accept options to
 the C<-d:> flag as with the C<-M> flag. Thus, to pass an option one must use:
 
-    perl -MDevel::Modlist=option
+    perl -MDevel::Modlist=option1[,option2,...]
 
 =over
 
@@ -105,6 +116,14 @@ Suppress the display of those modules that are a part of the Perl core. This
 is dependant on the Perl private library area not being an exact substring of
 the site-dependant library. The build process checks this for you prior to
 install.
+
+=item noversion
+
+Suppress the inclusion of version information with the module names. If a
+module has defined its version by means of the accepted standard of
+declaring a variable C<$VERSION> in the package namespace, B<Devel::Modlist>
+finds this and includes it in the report by default. Use this option to
+override that default.
 
 =back
 
