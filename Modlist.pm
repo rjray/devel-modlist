@@ -5,14 +5,12 @@
 #
 package Devel::Modlist;
 
-# Uncomment only for syntax checking-- no pragmas in production use (it can
-# affect the output)
-#use strict;
+require 5.6.0;
+use strict;
 
 # Suppress warnings without using the vars pragma
-local ($Devel::Modlist::VERSION, $Devel::Modlist::revision);
-$Devel::Modlist::VERSION = '0.5';
-$Devel::Modlist::revision = do { my @r=(q$Revision$=~/\d+/g); sprintf "%d."."%02d"x$#r,@r };
+our ($VERSION, $reported, %options);
+$VERSION = '0.6';
 
 BEGIN
 {
@@ -30,9 +28,7 @@ sub import
 {
     shift(@_); # Lose the leading "classname" value
 
-    grep($options{$_} = 1,
-         @_ ? @_ : split(/[, ]/,
-                         ($ENV{'Devel::Modlist'} || $ENV{Devel__Modlist})));
+    grep($options{$_} = 1, @_);
 }
 
 sub DB::DB
@@ -48,6 +44,16 @@ sub report
 {
     return if $reported;
 
+    unless (keys %options)
+    {
+        grep($options{$_} = 1,
+             split(/[, ]/, ($ENV{'Devel::Modlist'} || $ENV{Devel__Modlist})));
+    }
+    # The 'noreport' option is not documented in the pod. It is only used by
+    # the pod_coverage.t test suite, to prevent the loading of this module
+    # from triggering a usage report.
+    return if $options{noreport};
+
     local $!;
     $^W = 0;
     my $pkg;
@@ -56,6 +62,10 @@ sub report
     my $fh = $options{stdout} ? 'STDOUT' : 'STDERR';
     $DB::trace = 0 if ($DB::trace);
     my %files = %INC;
+    # We use this ourselves, so delete it all the time. They shouldn't need
+    # to see it here anyway.
+    delete $files{'strict.pm'};
+
     # Anything required from here on won't show up unless it was already there
     require File::Spec;
     my @order = (0 .. 2);
@@ -74,10 +84,11 @@ sub report
     if ($options{cpan} or $options{cpandist})
     {
         require CPAN;
-        CPAN::Config->load;
+
         # Defeat "used only once" warnings without using local() which breaks
         $CPAN::Frontend = $CPAN::Config->{index_expire} = '';
         $CPAN::Frontend = 'Devel::Modlist::QuietCPAN';
+        CPAN::HandleConfig->load;
         # This is an arbitrary value to inhibit re-loading index files
         $CPAN::Config->{index_expire} = 300;
         my %seen_dist = ();
@@ -114,6 +125,9 @@ sub report
     }
     for $inc (sort keys %files)
     {
+        # Disable refs-checking so we can read VERSION values
+        no strict 'refs';
+
         next if ($inc =~ /\.(al|ix)$/);
         $pkg = join('::', File::Spec->splitdir($inc));
         $pkg =~ s/\.pm$//;
@@ -259,6 +273,10 @@ parsed and recorded by B<Devel::Modlist>.
 
 Versions of Perl from 5.6.1 onwards allow options to be included with the
 C<-d:Modlist> flag.
+
+Because B<Devel::Modlist> uses the C<strict> pragma internally (as all modules
+should), that pragma is always removed from the output to avoid generating a
+false-positive.
 
 =head1 AUTHOR
 
