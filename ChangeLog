@@ -1,5 +1,20 @@
 Revision history for Perl extension Devel::Modlist.
 
+0.6	Wed May 31 20:47:26 MDT 2006
+
+	Modlist.pm:
+	Several changes: A fix to the handling of options passed in via
+	environment variables; Restored use of "strict" pragma and notes in
+	the docs about always removing it from the output; Updated use of
+	CPAN mechanics for the "cpan" option.
+
+	t/pod.t:
+	t/pod_coverage.t:
+	New test suites to test pod correctness and coverage.
+
+	Makefile.PL:
+	Extended the list of files to clean.
+
 0.5	Sat Apr 27 02:36:46 PDT 2002
 	- second beta
 

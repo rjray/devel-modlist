@@ -1,6 +1,6 @@
 Devel::Modlist - Show the modules, with version number, used by a script
 
-Version: 0.5 (see ChangeLog for full history)
+Version: 0.6 (see ChangeLog for full history)
 
 WHAT IS IT
 
@@ -48,13 +48,13 @@ Please send any reports of problems or bugs to <rjray@tsoft.com>.
 
 CREDITS AND LICENSES
 
-This package is copyright (c) 2000 by Randy Ray (rjray@tsoft.com) and may 
+This package is copyright (c) 2000 by Randy Ray (rjray@blackperl.com) and may 
 be distributed under terms of the Artistic License used to cover Perl itself.
 See the file Artistic in the distribution of Perl 5.002 or later for details
 of copy and distribution terms.
 
-Perl module interface by Randy J. Ray (rjray@tsoft.com), original concept and
-prototype code from Tim Bunce (Tim.Bunce@ig.co.uk).
+Perl module interface by Randy J. Ray (rjray@blackperl.com), original concept
+and prototype code from Tim Bunce (Tim.Bunce@ig.co.uk).
 
 Special thanks to Andreas König <andreas.koenig@anima.de> for help in adding
 the CPAN support.
