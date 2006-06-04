@@ -1,5 +1,0 @@
-Makefile
-pm_to_blib
-blib
-*.html
-pod2html*
