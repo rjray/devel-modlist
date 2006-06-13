@@ -1,5 +1,10 @@
 Revision history for Perl extension Devel::Modlist.
 
+0.7	Tue Jun 13 16:01:32 MDT 2006
+
+	The 0.6 release failed to deliver an updated README, ChangeLog, or
+	the newly-added test-suites.
+
 0.6	Wed May 31 20:47:26 MDT 2006
 
 	Modlist.pm:

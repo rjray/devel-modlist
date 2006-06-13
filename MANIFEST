@@ -3,3 +3,5 @@ MANIFEST
 Makefile.PL
 Modlist.pm
 README
+t/pod.t
+t/pod_coverage.t

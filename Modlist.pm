@@ -10,7 +10,7 @@ use strict;
 
 # Suppress warnings without using the vars pragma
 our ($VERSION, $reported, %options);
-$VERSION = '0.6';
+$VERSION = '0.7';
 
 BEGIN
 {
