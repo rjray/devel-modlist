@@ -1,8 +1,9 @@
 use ExtUtils::MakeMaker;
-# See lib/ExtUtils/MakeMaker.pm for details of how to influence
-# the contents of the Makefile that is written.
+
+# $Id$
 
 WriteMakefile(
+              (MM->can('signature_target') ? (SIGN => 1) : ()),
               NAME         => 'Devel::Modlist',
               VERSION_FROM => 'Modlist.pm', # finds $VERSION
               clean        => { FILES =>
