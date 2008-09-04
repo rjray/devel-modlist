@@ -1,5 +1,13 @@
 Revision history for Perl extension Devel::Modlist.
 
+0.8	Thu Sep  4 02:17:39 PDT 2008
+
+	Added and documented support for a YAML output format. Also added
+	explicit license information in the pod.
+
+	Moved Modlist.pm into a lib/Devel library to create a more traditional
+	layout. Affects MANIFEST and Makefile.PL as well.
+
 0.7	Tue Jun 13 16:01:32 MDT 2006
 
 	The 0.6 release failed to deliver an updated README, ChangeLog, or
