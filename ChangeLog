@@ -1,5 +1,13 @@
 Revision history for Perl extension Devel::Modlist.
 
+0.801	Fri Sep  5 02:34:20 PDT 2008
+
+	Previous release missed some commits/files. Did not deliver the
+	Module::Build support (new file Build.PL) or the author/abstract
+	meta-data in Makefile.PL.
+
+	Modlist.pm had an outdated link for the LGPL 2.1 license, fixed.
+
 0.8	Thu Sep  4 02:17:39 PDT 2008
 
 	Added and documented support for a YAML output format. Also added
