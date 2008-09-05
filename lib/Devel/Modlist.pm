@@ -10,7 +10,7 @@ use strict;
 
 # Suppress warnings without using the vars pragma
 our ($VERSION, $reported, %options);
-$VERSION = '0.8';
+$VERSION = '0.801';
 
 BEGIN
 {
@@ -408,6 +408,6 @@ released under the terms of the Artistic License 2.0
 (http://www.opensource.org/licenses/artistic-license-2.0.php). This
 code may be redistributed under either the Artistic License or the GNU
 Lesser General Public License (LGPL) version 2.1
-(http://www.opensource.org/licenses/lgpl-license.php).
+(http://www.opensource.org/licenses/lgpl-2.1.php).
 
 =cut
